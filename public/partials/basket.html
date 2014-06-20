@@ -1,0 +1,18 @@
+<div class="panel">
+	<h5>Basket</h5>
+	<a href="#"><img src="/img/sim-card.jpg" /></a>
+	
+	<ul class="side-nav" ng-repeat="sel in selected" style="line-height:1; padding:0; margin-top: 5px;">
+		<li>
+			<div class="row collapse">
+			  <div class="small-9 columns">
+			 		<a ng-click="rmSelected($index);">{{sel.Name}}</a>
+			 	</div>
+			 	<div class="small-3 columns">
+			 		<input style="float: right; " type="text">
+			  </div>
+		  </div>
+		</li>
+	</ul>
+	<button ng-click="insertSFDC()" style="width: 100%; margin-top: 5px;">Place Order</button>
+</div>

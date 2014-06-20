@@ -1,0 +1,23 @@
+{
+  "name": "digital-telco",
+  "version": "0.0.0",
+  "authors": [
+    "khowling@gmail.com <khowling@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-resource": "~1.2.18",
+    "angular-route": "~1.2.18",
+    "angular": "~1.2.18",
+    "angular-animate": "~1.2.18",
+    "foundation": "~5.2.3",
+    "foundation-icon-fonts": "*"
+  }
+}

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>My AngularJS App</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../bower_components/foundation/css/normalize.css"/>
+    <link rel="stylesheet" href="../bower_components/foundation/css/foundation.css"/>
+    <link rel="stylesheet" href="../bower_components/foundation-icon-fonts/foundation-icons.css" />
+
+    <link rel="stylesheet" href="css/style.css"/>
+    <script src="../bower_components/foundation/js/vendor/modernizr.js"></script>
+</head>
+<body>
+
+<div class="off-canvas-wrap" data-offcanvas>
+
+    <div class="fixed off-canvas-fixed">
+
+        <!-- top nav for small only -->
+        <div class=" fixed show-for-medium-down">
+            <nav class="tab-bar ">
+                <a class="left-off-canvas-toggle menu-icon ">
+                    <span></span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- left menu for small only -->
+        <aside class="left-off-canvas-menu">
+            <ul class="off-canvas-list" >
+                <li><label>Foundation</label></li>
+                <li><a class="left-off-canvas-toggle" href="#/">Home</a></li>
+                <li><a class="left-off-canvas-toggle" href="#/search">Search</a></li>
+                <li><a href="#">The Mayors</a></li>
+                <li><a href="#">The Traders</a></li>
+                <li><a href="#">The Merchant Princes</a></li>
+
+            </ul>
+        </aside>
+    </div>
+
+    <div class="inner-wrap">
+
+        <!-- top nav for large only -->
+        <nav class="top-bar hide-for-medium-down" data-topbar="">
+            <ul class="title-area">
+                <li class="name">
+                    <h1><a href="#/">Home</a></h1>
+                </li>
+            </ul>
+            <section class="top-bar-section">
+                <ul class="right">
+                    <li><a href="/docs" class="">Docs</a></li>
+                    <li class="divider"></li>
+                    <li class="has-form"><a href="/docs" class="small button">Getting Started</a></li>
+                </ul>
+            </section>
+        </nav>
+
+
+        <div style="height: 55px;"></div>
+        <div class="row collapse">
+
+            <!-- LEFT THIRD -->
+            <div class="hide-for-medium-down large-3  column">
+                <div class="slide-animate" ng-include="'partials/basket.html'"></div>
+            </div>
+
+            <div class="large-9 medium-12 column" ng-controller="TabNavCntrl">
+                <div class="ngViewContainer">
+                    <div  class="ng-view view-animate"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="../bower_components/foundation/js/vendor/jquery.js"></script>
+<script src="../bower_components/foundation/js/foundation.min.js"></script>
+<script>
+    $(document).foundation();
+</script>
+
+<script src="https://eu2.salesforce.com/canvas/sdk/js/30.0/canvas-all.js"></script>
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../bower_components/angular-route/angular-route.min.js"></script>
+<script src="../bower_components/angular-resource/angular-resource.min.js"></script>
+<script src="../bower_components/angular-animate/angular-animate.min.js"></script>
+<script src="js/productsearchctrl.js"></script>
+<script src="js/configure.js"></script>
+<script>
+    /*  load the 'ngResource' module in your application by adding it as a dependent module
+     *  ngResource INCLUDED IN THE BOOTSTRAP INSTREAD
+     angular.module('app', ['ngResource']);
+     */
+
+
+
+    angular.module('myApp', ['ngResource', 'ngRoute', 'ngAnimate']).config(function($interpolateProvider) {
+        //$interpolateProvider.startSymbol('{[{').endSymbol('}]}');
+    }).config(['$routeProvider', function($routeProvider){
+        $routeProvider.
+                when('/', {
+                    templateUrl: 'partials/home.html'
+                }).
+                when('/search', {
+                    templateUrl: 'partials/productsearch.html',
+                    controller: 'searchCtrl'
+                }).
+                when('/configure/:id', {
+                    templateUrl: 'partials/configure.html',
+                    controller: 'configureCtrl'
+                }).
+                when('/packages', {
+                    templateUrl: 'partials/packages.html'
+                }).
+                otherwise({
+                    redirectTo: '/phones'
+                });
+    }]).filter('split', function() {
+        return function(input, delimiter) {
+            var delimiter = delimiter || ',';
+
+            return input.split(delimiter);
+        }
+    }).filter('sfnametolabel', function() {
+        return function(input) {
+            try {
+                return input.replace ('__c', '').replace(/_/g, ' ');
+            } catch (e) {
+                return 'NO VALUE*';
+            }
+        }
+    }).run(function($rootScope, $location, $http) {
+
+        // Paste the signed request string into a JavaScript object for easy access.
+        console.log ('got from handlebar template : {{title}}');
+        console.log ('got from handlebar template : ' + '{{{signedreq}}}');
+
+        try {
+
+            $http.get('/sfsession').then (function (res) {
+                $rootScope.access_token = res.data.access_token ;
+                $rootScope.instanceUrl = res.data.instance_url;
+            })
+
+        //    var sr = JSON.parse('{{{signedreq}}}');
+            // set instanceUrl for links to salesforce objects
+        //    $rootScope.instanceUrl = sr.client.instanceUrl;
+        //    $rootScope.access_token = sr.client.oauthToken;
+        //    $rootScope.targetOrigin = sr.client.targetOrigin;
+
+            // lookup the client the order is for
+            var clientid = sr.context.environment.parameters.id;
+            var client_url = sr.context.links.sobjectUrl + 'Contact/' + clientid + '/';
+            Sfdc.canvas.client.ajax(
+                    client_url,
+                    {client : sr.client,
+                        success : function(data){
+                            // Make sure the status code is OK.
+                            $rootScope.$apply(function(){
+                                console.log ("response  "   + data.payload.Name);
+                                $rootScope.contact = data.payload;
+                            });
+                        }});
+        } catch (e) {
+            console.log ('no Signed Request');
+            $rootScope.instanceUrl = "https://eu2.salesforce.com";
+        }
+
+    });
+
+    function TabNavCntrl ($scope,$location) {
+        $scope.isActive = function (viewLocation) {
+            return viewLocation === $location.path();
+        };
+        $scope.changeView = function(view){
+            $('.absolute').toggleClass('showsidebar');
+            $location.path(view); // path not hash
+        }
+    }
+
+    /***********************
+     // Reference the Chatter user's URL from Context.Links object.
+     var queryContactsUrl = sr.context.links.queryUrl + '?q=SELECT+id,name,title,email,phone,MailingStreet,MailingCity,Codes__c,MailingPostalCode,MailingState+from+Contact';
+
+     $scope.getSFDCAccs = function() {
+	// Make an XHR call back to salesforce through the supplied browser proxy.
+	console.log('call salesforce: ' + queryContactsUrl);
+	Sfdc.canvas.client.ajax(queryContactsUrl,
+	    {client : sr.client,
+	    success : function(data){
+	    // Make sure the status code is OK.
+	    console.log ("response  "   + JSON.stringify(data));
+	    if (data.status === 200) {
+
+	        console.log ("Updating  "  + data.payload.totalSize +
+	        " Contacts into Solr"); // Returned 2 users
+
+	        var pushtosolr = new Array();
+	        for (var i = 0; i < data.payload.totalSize; i++) {
+	        	var sfdcobj = data.payload.records[i];
+	        	console.log (JSON.stringify (sfdcobj));
+	        	var code_json = [];
+	        	//if (sfdcobj.Codes__c != null) {
+	        	//	code_json = sfdcobj.Codes__c.split(',');
+	        	//}
+	        	if (sfdcobj.Codes__c != null) {
+	        		sfdcobj.Codes__c.split(',').forEach(function(c, i) {
+	        			var v1 = c.trim();
+	        			if (v1 != '') code_json.push (v1);
+	        		});
+	        	}
+
+
+	        	var solrobj = {
+		        	'id': sfdcobj.Id,
+		        	'Name_s' : sfdcobj.Name,
+		        	'Title_s': sfdcobj.Title,
+		        	'Codes_ss' : code_json,
+		        	'CV_Details_s' : sfdcobj.CV_Details__c,
+		        	'MailingStreet_s': sfdcobj.MailingStreet,
+		        	'MailingCity_s': sfdcobj.MailingCity,
+		        	'MailingState_s': sfdcobj.MailingState,
+		        	'MailingPostalCode_s': sfdcobj.MailingPostalCode,
+		        	'Phone_s': sfdcobj.Phone,
+		        	'Email_s': sfdcobj.Email};
+        		pushtosolr.push (solrobj);
+	        }
+	        $scope.add(pushtosolr);
+	    }
+	}});
+}
+     *********************************************************************/
+
+</script>
+
+</body>
+</html>

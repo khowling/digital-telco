@@ -1,0 +1,86 @@
+<style>
+
+    .doneit {
+        background: #33b96e !important;
+        color: white!important;
+    }
+    .notdoneit {
+        background: #5b5b5b !important;
+        color: white!important;
+    }
+</style>
+
+
+
+
+<h6>Configure</h6>
+<div class="row">
+    <div class="large-12 columns small-12">
+
+        <dl class="accordion" ng-init="accordion= {}"  data-accordion>
+
+            <dd  style="">
+                <a class="row" ng-click="toggleAccordion('_Desc')" style="background: white; vertical-align: middle; padding: 2px;"  >
+                    <div class="columns small-3">
+                        <img ng-src="{{product.imgsrc}}">
+                    </div>
+                    <div class="small-9 columns">
+                        <p><span ng-bind="product.Name"/></p>
+                        <button class="radius  expand" style="color: black; background-color: white; border: solid 1px #c6c6c6;">
+                            Product Detail
+                            <i class="right" style="font-size: 20px; margin-right: 10px;" ng-class="{'fi-zoom-out': accordion['_Desc'], 'fi-magnifying-glass': !accordion['_Desc'] }"></i>
+
+                        </button>
+
+                    </div>
+
+                </a>
+                <div  id="panelContent_Desc" class="content" style="padding: 0px;">
+
+                    <div class="row"   ng-click="toggleAccordion(_Desc)"  style="border: solid 1px #c6c6c6; border-top: 0px;">
+                        <div class="large-12"><span ng-bind-html="getRichDescroption()"></span></div>
+                    </div>
+
+                </div>
+            </dd>
+
+            <dd   ng-repeat="fieldnm in configJson track by fieldnm.name" style="border: solid 1px white;">
+                <a class="row" ng-click="toggleAccordion(fieldnm.name)" style="vertical-align: middle; padding: 2px;" ng-class="{'doneit': productConfig[fieldnm.name], 'notdoneit': !productConfig[fieldnm.name]}" >
+                    <div class="columns small-1" style="padding: 0px;">
+                        <img ng-src="{{fieldnm.imgsrc}}" style="height: 43px;"/>
+                    </div>
+                    <div class="columns small-4" >
+                        <span  ng-bind="fieldnm.name"/><span ng-hide="productConfig[fieldnm.name]">
+                            (<span ng-bind="fieldnm.values.length"></span>)
+                        </span>
+                    </div>
+                    <div class="columns small-6 "  ng-show="productConfig[fieldnm.name]">
+                        <div class="panel" style="margin: 0px; padding: .60rem; background: #009900;" ng-bind="productConfig[fieldnm.name]"/>
+
+                    </div>
+                    <div class="columns small-1 right"  style="padding: 0px;">
+                        <i style="font-size: 28px; margin-right: 10px;" ng-class="{'fi-check': productConfig[fieldnm.name], 'fi-arrow-up': (accordion[fieldnm.name] && !productConfig[fieldnm.name]), 'fi-arrow-down': (!accordion[fieldnm.name] && !productConfig[fieldnm.name])}"></i>
+                    </div>
+                </a>
+                <div  id="panelContent{{fieldnm.name}}" class="content" style="padding: 0px;">
+
+                    <div class="row" ng-repeat="valnm in fieldnm.values"  ng-click="productConfig[fieldnm.name] = valnm.name; toggleAccordion(fieldnm.name)" ng-class="{'alert-box warning round' : isFilterSelected(fieldnm, valnm)}" style="border: solid 1px #c6c6c6; border-top: 0px;">
+
+                           <div class="small-4 columns"><span ng-bind="valnm.name"/></div>
+
+
+
+                    </div>
+
+                </div>
+            </dd>
+        </dl>
+        <div class="row"><div class="large-12"><button class="button expand">add</button></div></div>
+
+
+    </div>
+</div>
+
+
+
+
