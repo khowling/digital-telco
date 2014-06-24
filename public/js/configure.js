@@ -7,7 +7,7 @@ var configureCtrl =  function ($sce, $http, $routeParams,  $resource, $scope, $r
         jQuery(".ng-view").foundation();
     });
 
-    $http.get('/proxy/query/?q=' + "select id, name, ThumbImage69Id__c,  Description__c from product__c where id = '" + $routeParams.id + "'")
+    $http.get('/proxy/query/?q=' + "select id, name, RecordType.Name, ThumbImage69Id__c,  Description__c from product__c where id = '" + $routeParams.id + "'")
         .success(function (data) {
 
             $scope.product = data.records[0];
@@ -42,24 +42,87 @@ var configureCtrl =  function ($sce, $http, $routeParams,  $resource, $scope, $r
         }
     }
 
-    $scope.configJson = [
-        {   name: 'Memory',
-            imgsrc: 'http://www.hantsfire.gov.uk/computer-chip-2.jpg',
+    $scope.configJson = {
+     Device: [
+         {   name: 'Tarrif',
+             icon: 'database',
+             desc: 'How much memory?',
+             required: true,
+             values: [
+                 {imgsrc: 'http://www.samsung.com/us/system/support/faq/2014/01/28/faq00059084/icon.No_SIM.png', name: 'Handset Only', desc: 'Unlocked handset without SIM', price: 355, recommended: false },
+                 {imgsrc: 'http://files.softicons.com/download/application-icons/qetto-icons-2-by-ampeross/png/256x256/sim%20card.png', name: '4G Unlimited', desc: 'Our fasted 4G with 400Gb data + 200 text, 18 monthly price', price: 55, recommended: true },
+                 {imgsrc: 'http://files.softicons.com/download/application-icons/qetto-icons-2-by-ampeross/png/256x256/sim%20card.png', name: '300 Unlimited', desc: '3G with 300Gb data + 100 text, 18 monthly price', price: 35},
+                 {imgsrc: 'http://files.softicons.com/download/application-icons/qetto-icons-2-by-ampeross/png/256x256/sim%20card.png', name: '500 Unlimited', desc: '3G with 500Gb data + 200 text, 18 monthly price', price: 45}
+             ]
+         },
+         {   name: 'Memory',
+            icon: 'sound',
             desc: 'How much memory?',
+            required: true,
             values: [
-                {name: '64Mb' },
-                {name: '128Mb'}
-                ]
+                { imgsrc: 'http://www.hantsfire.gov.uk/computer-chip-2.jpg', name: '32Mb', desc: 'Good for lots of photos, and some videos', recommended: true, price: 35 },
+                { imgsrc: 'http://www.hantsfire.gov.uk/computer-chip-2.jpg', name: '64Mb', desc: 'top selection for videos and many pictures', recommended: true, price: 65  }
+            ]
         },
-        {   name: 'Tarrif',
-            imgsrc: 'http://files.softicons.com/download/application-icons/qetto-icons-2-by-ampeross/png/256x256/sim%20card.png',
-            desc: 'How much memory?',
+        {   name: 'Specials',
+            icon: 'info',
+            desc: 'Something for the weekend dir?',
+            required: false,
             values: [
-                {name: '4G Unlimited', data: '400Gb', type: '4G' },
-                {name: '300 Unlimited', data: '400Gb', type: '3G' },
-                {name: '500 Unlimited',  data: '400Gb', type: '3G'}
+                {imgsrc: 'http://image.dhgate.com/albu_279642736_00-1.0x0/100pcs-lot-candy-color-mobile-case-for-iphone5.jpg', name: 'candy color mobile case', price: 9.99 },
+                {imgsrc: 'http://www.chinahcs.com/images/Techo4IncredibleRechargeableWirele408005.jpg', name: 'Bluetooth Headset', price: 19.99},
+                {imgsrc: 'http://enlightenopex.wpengine.netdna-cdn.com/wp-content/uploads/2013/03/insurance-pc-life-icon-tmb-175x175.png', name: 'Insurance', price: 9.99}
             ]
         }
-        ];
-    $scope.productConfig = {};
+    ],
+    Subscription: [
+        {   name: 'Team',
+            icon: 'torsos',
+            desc: 'How much memory?',
+            required: true,
+            values: [
+                { imgsrc: 'https://cdn3.iconfinder.com/data/icons/people-professions/512/Individual-128.png', name: 'Individual', desc: 'No group facilities, no sharing etc', recommended: false, price: 35 },
+                { imgsrc: 'https://cdn2.iconfinder.com/data/icons/picol-vector/32/group_full-128.png', name: 'Team of 5', desc: 'features for groups of upto 5 people', recommended: true, price: 65  },
+                { imgsrc: 'http://badg.us/media/uploads/badge/image_team-leader_1341321395_0944.png', name: 'Team of 10', desc: 'unlimited edition', recommended: false, price: 95  }
+            ]
+        },
+        {   name: 'Edition',
+            icon: 'social-windows',
+            desc: 'How much memory?',
+            required: true,
+            values: [
+            {imgsrc: 'http://icons.iconarchive.com/icons/aha-soft/agriculture/256/cattle-icon.png', name: 'Standard', desc: 'Straw on the floor, no toilettes', price: 55, recommended: true },
+            {imgsrc: 'http://png-3.findicons.com/files/icons/2576/computer_icon_pack_1/256/computer_silver.png', name: 'Silver', desc: 'Same as standard with a different icon', price: 95},
+            {imgsrc: 'http://www.postadvertising.com/wp-content/uploads/2013/07/twitter-gold-cooky.png', name: 'Gold', desc: 'Completely unilimited, except for everything has a limit', price: 145}
+        ]
+        }
+    ]};
+
+    $scope.enableaddtocart = false;
+    $scope.productConfig = { totalprice: 0};
+    $scope.addselection = function (category, val) {
+        $scope.productConfig[category] = val;
+        $scope.toggleAccordion(category);
+        var notfinished = false;
+        $scope.productConfig.totalprice = 0;
+        for (var c in $scope.configJson[$scope.product.RecordType.Name]) {
+            var copt = $scope.configJson[$scope.product.RecordType.Name][c];
+            if (copt.required && !$scope.productConfig[copt.name]) {
+                notfinished = true;
+            } else {
+                for (vopt in copt.values) {
+                    if (copt.values[vopt].name === $scope.productConfig[copt.name]) {
+                        $scope.productConfig.totalprice += copt.values[vopt].price;
+                    }
+                }
+            }
+        }
+        if (!notfinished) $scope.enableaddtocart = true;
+
+    }
+    $scope.addtobasket = function() {
+        $scope.product.config = $scope.productConfig;
+        $rootScope.selected.push ($scope.product);
+
+    }
 }

@@ -22,27 +22,38 @@
         <!-- top nav for small only -->
         <div class=" fixed show-for-medium-down">
             <nav class="tab-bar ">
-                <a class="left-off-canvas-toggle menu-icon ">
-                    <span></span>
-                </a>
+
+                    <a class="left left-off-canvas-toggle menu-icon ">
+                        <span></span>
+                    </a>
+
+
+
+                    <div class="right" style="margin-right:5px;">
+
+                        <a href="/#basket" class="tiny button radius" style="padding: 5px;">
+                            <i class="fi-shopping-cart" style="font-size: 18px;margin-right: 5px;"></i><i class="fi-pound" style="font-size: 10px; margin: 2px;"></i><span ng-bind="selected | sumbasket"/> (<span ng-bind="selected.length">)</span>
+                        </a>
+                    </div>
+                </section>
             </nav>
         </div>
 
         <!-- left menu for small only -->
         <aside class="left-off-canvas-menu">
             <ul class="off-canvas-list" >
-                <li><label>Foundation</label></li>
+                <li><label>Telco</label></li>
                 <li><a class="left-off-canvas-toggle" href="#/">Home</a></li>
                 <li><a class="left-off-canvas-toggle" href="#/search">Search</a></li>
-                <li><a href="#">The Mayors</a></li>
-                <li><a href="#">The Traders</a></li>
-                <li><a href="#">The Merchant Princes</a></li>
-
+                <li><a class="left-off-canvas-toggle" href="#/basket">Basket</a></li>
+                <li><a class="left-off-canvas-toggle" href="#/packages">Offers</a></li>
             </ul>
         </aside>
     </div>
 
     <div class="inner-wrap">
+
+
 
         <!-- top nav for large only -->
         <nav class="top-bar hide-for-medium-down" data-topbar="">
@@ -118,6 +129,9 @@
                 when('/packages', {
                     templateUrl: 'partials/packages.html'
                 }).
+                when('/basket', {
+                    templateUrl: 'partials/basket.html'
+                }).
                 otherwise({
                     redirectTo: '/phones'
                 });
@@ -135,12 +149,25 @@
                 return 'NO VALUE*';
             }
         }
+    }).filter('sumbasket', function() {
+        return function(input) {
+            try {
+                var sumret = 0;
+                for (var i in input) {
+                    sumret+= input[i].config.totalprice;
+                }
+                return sumret;
+            } catch (e) {
+                return 'NO VALUE*';
+            }
+        }
     }).run(function($rootScope, $location, $http) {
 
         // Paste the signed request string into a JavaScript object for easy access.
         console.log ('got from handlebar template : {{title}}');
         console.log ('got from handlebar template : ' + '{{{signedreq}}}');
 
+        $rootScope.selected = [];
         try {
 
             $http.get('/sfsession').then (function (res) {

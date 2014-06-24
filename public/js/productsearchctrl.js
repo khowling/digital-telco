@@ -39,7 +39,6 @@ var searchCtrl =  function ($resource, $scope, $rootScope, $location) {
 	if (!urlfilters) $scope.setfilters = JSON.parse (urlfilters);
 	
 	$scope.data = data;
-	$rootScope.selected = [];
 	
 	$scope.isFilterSelected = function(fieldname, fieldval) {
 		//console.log ('isFilterSelected ' + fieldname + ' ' + fieldval);
@@ -82,36 +81,7 @@ var searchCtrl =  function ($resource, $scope, $rootScope, $location) {
 		console.log ('rmSelected ' + idx);  			
 		$rootScope.selected.splice( $scope.selected[idx] ,1);
 	}
-	
-	/* configure product */
-	$scope.configure = function (s) {
-		/* foundation reveal options */
-		$('#descModal').data('reveal-init', {
-		    animation: 'fadeAndPop',
-		    animation_speed: 250,
-		    close_on_background_click: false,
-		    close_on_esc: false,
-		    dismiss_modal_class: 'close-reveal-modal',
-		    bg_class: 'reveal-modal-bg',
-		    bg : $('.reveal-modal-bg'),
-		    css : {
-		        open : {
-		            'opacity': 0,
-		            'visibility': 'visible',
-		            'display' : 'block'
-		        },
-		        close : {
-		            'opacity': 1,
-		            'visibility': 'hidden',
-		            'display': 'none'
-		        }
-		    }
-		});
-		
-		
-		$('#descModal').foundation('reveal', 'open');
-	};
-	
+
 	/* Initialisation */
 	$scope.Search = $resource('/products/:accId', {accId:'@id'},
 		{'saveall':  {method:'POST', isArray:true},
@@ -151,9 +121,10 @@ var searchCtrl =  function ($resource, $scope, $rootScope, $location) {
                             data.facetcounts[fld] = 0;
                             for (var x = 0; x < ffs[fld].length; x += 2) {
                                 if (ffs[fld][x + 1] > 0) {
-                                    data.facetcounts[fld]+= 1;
-                                    data.facetresults[fld][ffs[fld][x]] = ffs[fld][x + 1];
+                                    data.facetcounts[fld] += 1;
                                 }
+                                    data.facetresults[fld][ffs[fld][x]] = ffs[fld][x + 1];
+
                             }
                         }
 				    }
