@@ -1,22 +1,20 @@
 <style>
-
-    .filterSelected {
-        background: #00aff0!important;
-    }
-    .filterNotSelected {
-        background: #5a5a5a!important;
-    }
-
+.filterSelected {
+    background: #00aff0!important;
+}
+.filterNotSelected {
+    background: #5a5a5a!important;
+}
 </style>
 
 
-<div class="row show-for-small-down collapse panel" style="padding-bottom: 0px; padding-top: 0px; margin-bottom: 10px;">
+<div class="row show-for-small-down collapse" style="padding-bottom: 0px; padding-top: 0px; margin-bottom: 10px;">
     <div ng-show="filtersCount() > 0" class="small-5 columns  center" style="text-align:right; padding: 0px;">
-        <button ng-click="setfilters = {}; search(searchparam);" style="margin: 0;">{{filtersCount()}}  Set  <i class=" fi-x" ></i></button>
+        <button class="round filterNotSelected" ng-click="setfilters = {}; search(searchparam);" style="margin: 0; padding: 8px;">{{filtersCount()}}  Set  <i class=" fi-x" ></i></button>
      </div>
     <div class="small-5 columns  right" style="text-align:right; padding: 0px;">
 
-        <button class="right-off-canvas-toggle" style="margin: 0;">Filters <i class=" fi-arrow-right" ></i></button>
+        <button class="right-off-canvas-toggle filterNotSelected" style="margin: 0; padding: 8px; border-top-left-radius: 1000px; border-bottom-left-radius: 1000px;">Filters <i class=" fi-arrow-right" ></i></button>
     </div>
 </div>
 
@@ -50,13 +48,6 @@
             <strong>Search Results</strong> (<span ng-bind="data.totalrecords"/>)</p>
         </h6>
 
-        <!-- 	<div ng-repeat="filt in setfilters">
-        <a class="label round alert" style="margin: 2px;"
-        ng-click="rmFilter($index);  search(searchparam);">{[{filt.field
-        | sfnametolabel }]}: {[{filt.val | sfnametolabel}]}</a>
-        </div>
-        -->
-
         <!-- ***************** FACET RESULTS *************** -->
         <span ng-repeat="fieldnm in facetorder">
             <div class="panel" style="padding: 5px; background: white;">
@@ -77,30 +68,6 @@
 
 <!-- ***************** SEARCH ENTRY ROW ***************** -->
     <div class="large-9 medium-9 column">
-
-
-    <!--
-        <dl ng-init="accordion= {}" class="accordion" data-accordion>
-            <dd  ng-repeat="fieldnm in facetorder">
-                <a ng-click="toggleAccordion(fieldnm)"><span ng-bind="fieldnm | sfnametolabel"/> (<span ng-bind="data.facetcounts[fieldnm]"></span>)
-                    <i class="right" ng-class="{'fi fi-minus': accordion[fieldnm], 'fi fi-plus': !accordion[fieldnm]}"></i>
-                </a>
-                <div id="panelContent{{fieldnm}}" class="content ">
-
-                    <ul style="line-height: 1; padding: 0;">
-                        <li ng-repeat="(valnm, cnt) in data.facetresults[fieldnm]">
-                            <div ng-class="{'alert-box warning round' : isFilterSelected(fieldnm, valnm)}" style="padding-top: 5px; padding-bottom: 5px;">
-                                <a ng-click="toggleFilter(fieldnm, valnm);  search(searchparam);"><span ng-bind="valnm
-                        | sfnametolabel"/> (<span ng-bind="cnt"/>)</a>
-                                <a ng-show="isFilterSelected(fieldnm, valnm)" href="#" class="close">&times;</a>
-                            </div>
-                        </li>
-                    </ul>
-
-                </div>
-            </dd>
-        </dl>
-    -->
 
         <div class="row">
 

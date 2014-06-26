@@ -14,6 +14,7 @@
     "debug": "~0.7.4",
     "hjs": "~0.0.6",
     "solr-client": "*",
-      "querystring": "*"
+      "querystring": "*",
+      "express-session": "*"
   }
 }

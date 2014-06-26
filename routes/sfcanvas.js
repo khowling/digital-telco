@@ -3,7 +3,8 @@ var   express = require('express')
     , https = require('https')
     , url = require ('url')
     , https = require ('https')
-    , querystring = require ('querystring');
+    , querystring = require ('querystring')
+    , path = require('path');
 
 module.exports = function (secret) {
 
@@ -105,8 +106,11 @@ module.exports = function (secret) {
 		if (encodedSig !== expectedSig) {
 			throw 'Bad signed JSON Signature!';
 		}
-
-		res.render('index', {title: 'hello', signedreq : json_envelope});
+        //req.session.sfcontext = json_envelope;
+        var canvashome = path.join(__dirname, '../public') + '/index.html';
+        console.log ('sending file ' + canvashome);
+        res.cookie('sfcontext', json_envelope);
+        res.sendfile(canvashome);
 	});
 	
 	

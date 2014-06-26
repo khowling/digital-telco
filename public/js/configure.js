@@ -6,8 +6,9 @@ var configureCtrl =  function ($sce, $http, $routeParams,  $resource, $scope, $r
     angular.element(document).ready(function () {
         jQuery(".ng-view").foundation();
     });
-
-    $http.get('/proxy/query/?q=' + "select id, name, RecordType.Name, ThumbImage69Id__c,  Description__c from product__c where id = '" + $routeParams.id + "'")
+    //var url = ($rootScope.sf) && ($rootScope.sf.client.targetOrigin + $rootScope.sf.context.links.restUrl) || '/proxy';
+    //console.log ('hitting : ' +url);
+    $http.get('/proxy' + '/query/?q=' + "select id, name, RecordType.Name, ThumbImage69Id__c,  Description__c from product__c where id = '" + $routeParams.id + "'")
         .success(function (data) {
 
             $scope.product = data.records[0];
@@ -16,7 +17,7 @@ var configureCtrl =  function ($sce, $http, $routeParams,  $resource, $scope, $r
             };
             $http.get('/proxy/chatter/files/' + $scope.product.ThumbImage69Id__c)
                 .success(function (cdata) {
-
+                        $scope.product.configuredprice = 0;
                         $scope.product.imgsrc = 'https://eu2.salesforce.com' + cdata.downloadUrl;
 
             });
@@ -96,15 +97,28 @@ var configureCtrl =  function ($sce, $http, $routeParams,  $resource, $scope, $r
             {imgsrc: 'http://www.postadvertising.com/wp-content/uploads/2013/07/twitter-gold-cooky.png', name: 'Gold', desc: 'Completely unilimited, except for everything has a limit', price: 145}
         ]
         }
-    ]};
+    ],
+    Accessory: [
+        {   name: 'Color',
+            icon: 'paint-bucket',
+            desc: 'uh?',
+            required: true,
+            values: [
+                { imgsrc: 'http://www.clker.com/cliparts/5/H/A/o/3/7/red-circle-th.png', name: 'Red', desc: 'Looks nice', recommended: false, price: 15 },
+                { imgsrc: 'http://home.online.no/~t-o-k/Colour_Gradients/Cyan-Blue_256x256.png', name: 'Blue', desc: 'Common', recommended: true, price: 18  },
+                { imgsrc: 'http://sa.aos.ask.com/us/sc/cw/pink-color.jpg', name: 'Pink', desc: 'One for the ladies (thats you Matt)', recommended: false, price: 20  }
+            ]
+        }
+        ]
+    };
 
     $scope.enableaddtocart = false;
-    $scope.productConfig = { totalprice: 0};
+    $scope.productConfig = { };
     $scope.addselection = function (category, val) {
         $scope.productConfig[category] = val;
         $scope.toggleAccordion(category);
         var notfinished = false;
-        $scope.productConfig.totalprice = 0;
+        $scope.product.configuredprice = 0;
         for (var c in $scope.configJson[$scope.product.RecordType.Name]) {
             var copt = $scope.configJson[$scope.product.RecordType.Name][c];
             if (copt.required && !$scope.productConfig[copt.name]) {
@@ -112,7 +126,7 @@ var configureCtrl =  function ($sce, $http, $routeParams,  $resource, $scope, $r
             } else {
                 for (vopt in copt.values) {
                     if (copt.values[vopt].name === $scope.productConfig[copt.name]) {
-                        $scope.productConfig.totalprice += copt.values[vopt].price;
+                        $scope.product.configuredprice += copt.values[vopt].price;
                     }
                 }
             }
@@ -123,6 +137,8 @@ var configureCtrl =  function ($sce, $http, $routeParams,  $resource, $scope, $r
     $scope.addtobasket = function() {
         $scope.product.config = $scope.productConfig;
         $rootScope.selected.push ($scope.product);
+        jQuery('.firstModal').foundation('reveal', 'open');
 
     }
+
 }

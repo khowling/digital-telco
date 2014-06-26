@@ -73,13 +73,41 @@
 
 
         <div style="height: 55px;"></div>
+
+        <!-- The Model when adding things to a cart -->
+        <style> .firstModal:before {
+            content: "";
+            border: inset 6px;
+            border-color: transparent transparent #fff transparent;
+            border-bottom-style: solid;
+            position: absolute;
+            top: -12px;
+            left: 90%;
+            z-index: 99;
+        }</style>
+
+        <div class="firstModal reveal-modal tiny" data-reveal style="left: 50%;  width: 45%;  top: 50px; min-height: 270px;">
+            <p>Your Item has been added to the Shopping Cart</p>
+            <hr/>
+            <a class="button expand " href="#/search" onclick="jQuery('.firstModal').foundation('reveal', 'close');">continue shopping</a>
+            <button class="expand" onclick="#">Checkout</button>
+
+        </div>
+
         <div class="row collapse">
 
             <!-- LEFT THIRD -->
             <div class="hide-for-medium-down large-3  column">
                 <div class="slide-animate" ng-include="'partials/basket.html'"></div>
+
+                <div class="panel" ng-if="sf">
+                    <a href="#"><img ng-src="{{sf.context.user.profilePhotoUrl}}" /></a>
+                    <hr/>
+                    <h4 ng-bind="sf.context.user.fullName"></h4>
+                </div>
             </div>
 
+            <!-- RIGHT TWO THIRDS -->
             <div class="large-9 medium-12 column" ng-controller="TabNavCntrl">
                 <div class="ngViewContainer">
                     <div  class="ng-view view-animate"></div>
@@ -101,6 +129,7 @@
 <script src="../bower_components/angular-route/angular-route.min.js"></script>
 <script src="../bower_components/angular-resource/angular-resource.min.js"></script>
 <script src="../bower_components/angular-animate/angular-animate.min.js"></script>
+<script src="../bower_components/angular-cookies/angular-cookies.min.js"></script>
 <script src="js/productsearchctrl.js"></script>
 <script src="js/configure.js"></script>
 <script>
@@ -111,7 +140,7 @@
 
 
 
-    angular.module('myApp', ['ngResource', 'ngRoute', 'ngAnimate']).config(function($interpolateProvider) {
+    angular.module('myApp', ['ngResource', 'ngRoute', 'ngAnimate', 'ngCookies']).config(function($interpolateProvider) {
         //$interpolateProvider.startSymbol('{[{').endSymbol('}]}');
     }).config(['$routeProvider', function($routeProvider){
         $routeProvider.
@@ -131,6 +160,10 @@
                 }).
                 when('/basket', {
                     templateUrl: 'partials/basket.html'
+                }).
+                when('/guided', {
+                    templateUrl: 'partials/guided.html',
+                    controller: 'searchCtrl'
                 }).
                 otherwise({
                     redirectTo: '/phones'
@@ -154,20 +187,28 @@
             try {
                 var sumret = 0;
                 for (var i in input) {
-                    sumret+= input[i].config.totalprice;
+                    sumret+= input[i].configuredprice;
                 }
                 return sumret;
             } catch (e) {
                 return 'NO VALUE*';
             }
         }
-    }).run(function($rootScope, $location, $http) {
+    }).run(function($rootScope, $location, $http, $cookies, $cookieStore) {
 
         // Paste the signed request string into a JavaScript object for easy access.
         console.log ('got from handlebar template : {{title}}');
         console.log ('got from handlebar template : ' + '{{{signedreq}}}');
 
-        $rootScope.selected = [];
+
+       if ($cookies.sfcontext) {
+           // we are in the canvas context!
+           console.log ($cookies.sfcontext);
+           $rootScope.sf = angular.fromJson ($cookies.sfcontext);
+           $cookieStore.remove("sfcontext");
+       }
+
+        $rootScope.selected = []; // selected iteam in basket
         try {
 
             $http.get('/sfsession').then (function (res) {
